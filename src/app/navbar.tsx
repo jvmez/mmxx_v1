@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ConnectButton } from "thirdweb/react";
-import { client } from "./client";
+import dynamic from "next/dynamic";
 import { useState, useEffect } from "react";
 
 function LivePrice() {
@@ -75,6 +74,9 @@ function LivePrice() {
 }
 
 export default function Navbar() {
+  const WalletConnect = dynamic(() => import("./components/WalletConnect"), {
+    ssr: false,
+  });
   return (
     <nav className="sticky top-0 z-40 w-full border-b border-zinc-200/80 bg-white/60 backdrop-blur supports-[backdrop-filter]:bg-white/40">
       <div className="container h-14 flex items-center justify-between">
@@ -91,13 +93,7 @@ export default function Navbar() {
             <Image src="/9297484_uni_blockchain_coins_cryptocurrency_crypto_icon.png" alt="Crypto" width={24} height={24} />
             <Image src="/11053970_x_logo_twitter_new_brand_icon.png" alt="X" width={24} height={24} />
           </div>
-          <ConnectButton
-            client={client}
-            appMetadata={{
-              name: "MMXX",
-              url: "https://example.com",
-            }}
-          />
+          <WalletConnect />
         </div>
       </div>
     </nav>
