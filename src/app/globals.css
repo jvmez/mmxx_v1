@@ -1,0 +1,158 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+  font-variation-settings: "slnt" 0;
+}
+
+@layer base {
+  body {
+    @apply bg-gradient-to-b from-white to-zinc-50 text-zinc-900;
+  }
+
+  h1, h2, h3 {
+    @apply tracking-tight text-zinc-900;
+  }
+
+  ::selection {
+    background-color: rgb(24 24 27 / 0.12);
+  }
+
+  a {
+    @apply text-zinc-900 underline-offset-4 hover:underline;
+  }
+
+  code {
+    @apply rounded bg-zinc-100 px-1.5 py-0.5 text-[0.875em] text-zinc-800;
+  }
+
+  /* Minimal scrollbar */
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: rgb(228 228 231);
+    border-radius: 9999px;
+  }
+}
+
+@layer utilities {
+  .container {
+    @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-screen-xl;
+  }
+
+  .card {
+    @apply rounded-xl border border-zinc-200 bg-white shadow-sm;
+  }
+
+  .card-hover {
+    @apply transition duration-200 hover:shadow-md hover:border-zinc-300 hover:-translate-y-0.5;
+  }
+
+  .tw-text {
+    @apply text-zinc-900;
+  }
+
+  .tw-muted {
+    @apply text-zinc-600;
+  }
+
+  .tw-muted-2 {
+    @apply text-zinc-500;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition;
+  }
+
+  .btn-primary {
+    @apply bg-black text-white hover:bg-zinc-800;
+  }
+
+  .btn-outline {
+    @apply border border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-50;
+  }
+}
+
+/* thirdweb-like utility layer */
+@layer utilities {
+  /* Buttons */
+  .tw-btn {
+    @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .tw-btn-primary {
+    @apply tw-btn bg-black text-white hover:bg-zinc-800;
+  }
+  .tw-btn-ghost {
+    @apply tw-btn bg-transparent text-zinc-900 hover:bg-zinc-100;
+  }
+  .tw-btn-outline {
+    @apply tw-btn border border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-50;
+  }
+
+  /* Inputs */
+  .tw-input {
+    @apply w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none focus:ring-2 focus:ring-zinc-300;
+  }
+  .tw-select {
+    @apply tw-input pr-8 appearance-none bg-no-repeat bg-right;
+  }
+  .tw-label {
+    @apply tw-text text-sm font-medium mb-1;
+  }
+  .tw-hint {
+    @apply tw-muted text-xs mt-1;
+  }
+
+  /* Badges / Chips */
+  .tw-badge {
+    @apply inline-flex items-center gap-1 rounded-full border border-zinc-300 bg-white px-2.5 py-1 text-xs font-medium text-zinc-700;
+  }
+  .tw-chip {
+    @apply inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-700;
+  }
+
+  /* Surfaces */
+  .tw-card {
+    @apply rounded-xl border border-zinc-200 bg-white p-6 shadow-sm;
+  }
+  .tw-card-hover {
+    @apply transition hover:shadow-md hover:border-zinc-300;
+  }
+  .tw-section {
+    @apply rounded-xl bg-zinc-50 p-4 md:p-6 border border-zinc-200;
+  }
+  .tw-divider {
+    @apply h-px w-full bg-zinc-200 my-4;
+  }
+
+  /* Tables */
+  .tw-table {
+    @apply w-full text-left text-sm text-zinc-800;
+  }
+  .tw-th {
+    @apply px-3 py-2 font-semibold text-zinc-600;
+  }
+  .tw-td {
+    @apply px-3 py-2 border-t border-zinc-200;
+  }
+
+  /* Misc */
+  .tw-kbd {
+    @apply inline-flex items-center rounded-md border border-zinc-300 bg-white px-1.5 py-0.5 text-xs font-medium text-zinc-700 shadow-sm;
+  }
+  .tw-link {
+    @apply underline underline-offset-4 hover:text-zinc-700;
+  }
+}
