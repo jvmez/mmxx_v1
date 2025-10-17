@@ -167,4 +167,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - Built with [thirdweb](https://thirdweb.com) for Web3 functionality
 - UI designed with [Tailwind CSS](https://tailwindcss.com)
-- Powered by [Next.js](https://nextjs.org)
+- Powered by [Next.js](https://nextjs.org)# mmxxV2
