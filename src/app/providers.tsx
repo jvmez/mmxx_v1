@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThirdwebProvider } from "thirdweb/react";
 import { client } from "./client";
+import { ErrorBoundary } from "./ErrorBoundary";
 
 export function Providers({ children }: PropsWithChildren) {
   const [queryClient] = useState(() => new QueryClient());
@@ -47,11 +48,13 @@ export function Providers({ children }: PropsWithChildren) {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThirdwebProvider>
-        {children}
-      </ThirdwebProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ThirdwebProvider>
+          {children}
+        </ThirdwebProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
