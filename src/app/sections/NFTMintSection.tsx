@@ -14,12 +14,17 @@ export default function NFTMintSection() {
   const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
   const RAW_CONTRACT_ADDRESSES = process.env.NEXT_PUBLIC_CONTRACT_ADDRESSES;
   const contractAddresses = useMemo(() => {
-    const list = (RAW_CONTRACT_ADDRESSES || "")
-      .split(",")
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0);
-    if (list.length > 0) return list;
-    return CONTRACT_ADDRESS ? [CONTRACT_ADDRESS] : [];
+    try {
+      const list = (RAW_CONTRACT_ADDRESSES || "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0 && s.startsWith("0x"));
+      if (list.length > 0) return list;
+      return CONTRACT_ADDRESS && CONTRACT_ADDRESS.startsWith("0x") ? [CONTRACT_ADDRESS] : [];
+    } catch (error) {
+      console.error("Error parsing contract addresses:", error);
+      return [];
+    }
   }, [RAW_CONTRACT_ADDRESSES, CONTRACT_ADDRESS]);
 
   const [selectedAddress, setSelectedAddress] = useState<string>(
@@ -33,9 +38,21 @@ export default function NFTMintSection() {
   }, [contractAddresses, selectedAddress]);
   const chain = defineChain({ id: 1, name: "Ethereum", rpc: "https://eth.llamarpc.com" });
   const effectiveAddress = selectedAddress;
-  const contract = effectiveAddress && effectiveAddress !== "0x0000000000000000000000000000000000000000"
-    ? (getContract({ client, address: effectiveAddress, chain }) as any)
-    : null;
+  
+  const contract = useMemo(() => {
+    try {
+      if (effectiveAddress && 
+          effectiveAddress !== "0x0000000000000000000000000000000000000000" &&
+          effectiveAddress.startsWith("0x") &&
+          effectiveAddress.length === 42) {
+        return getContract({ client, address: effectiveAddress, chain }) as any;
+      }
+      return null;
+    } catch (error) {
+      console.error("Error creating contract:", error);
+      return null;
+    }
+  }, [effectiveAddress, client, chain]);
 
   const { data: tokenUri } = useReadContract(
     contract
