@@ -1,11 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
-import { ConnectButton, useActiveAccount, useReadContract } from "thirdweb/react";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { ConnectButton, useActiveAccount } from "thirdweb/react";
 import { getContract, prepareContractCall, sendTransaction } from "thirdweb";
 import { client } from "../client";
 import { defineChain } from "thirdweb/chains";
+import TokenUriReader from "./TokenUriReader";
 
 export default function NFTMintSection() {
   const account = useActiveAccount();
@@ -54,11 +55,11 @@ export default function NFTMintSection() {
     }
   }, [effectiveAddress, client, chain]);
 
-  const { data: tokenUri } = useReadContract(
-    contract
-      ? ({ contract, method: "function tokenURI(uint256)", params: [0] } as any)
-      : (undefined as any)
-  );
+  const [tokenUri, setTokenUri] = useState<any>(undefined);
+
+  const handleTokenUri = useCallback((uri: any) => {
+    setTokenUri(uri);
+  }, []);
 
   const [previewSrc, setPreviewSrc] = useState<string>("/Untitled design (2) 2.PNG");
   const [animationUrl, setAnimationUrl] = useState<string>("");
@@ -91,7 +92,7 @@ export default function NFTMintSection() {
       return;
     }
     if (!contract) {
-      setMintStatus("No contract configured");
+      setMintStatus("No contract configured. Please set NEXT_PUBLIC_CONTRACT_ADDRESS in your environment variables.");
       return;
     }
     try {
@@ -100,17 +101,20 @@ export default function NFTMintSection() {
         contract,
         method: "function mint()",
         params: [],
-      } as any);
+      });
       await sendTransaction({ transaction: tx, account });
       setMintStatus("Mint successful");
     } catch (err) {
       setMintStatus("Mint failed");
-      console.error(err);
+      console.error("Mint error:", err);
     }
   };
 
   return (
     <div className="max-w-4xl mx-auto">
+      {/* Token URI Reader Component */}
+      <TokenUriReader contract={contract} onTokenUri={handleTokenUri} />
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         {/* Left: Copy */}
         <div className="space-y-6">
@@ -193,8 +197,10 @@ export default function NFTMintSection() {
             <div className="mt-4 text-center text-sm text-zinc-700">{mintStatus}</div>
           )}
           {contractAddresses.length === 0 && (
-            <div className="mt-3 text-center text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2">
-              Set NEXT_PUBLIC_CONTRACT_ADDRESS or NEXT_PUBLIC_CONTRACT_ADDRESSES in your env to enable minting.
+            <div className="mt-3 text-center text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-3">
+              <p className="font-semibold mb-1">⚠️ No contracts configured</p>
+              <p>Set NEXT_PUBLIC_CONTRACT_ADDRESS or NEXT_PUBLIC_CONTRACT_ADDRESSES in your environment variables to enable minting.</p>
+              <p className="mt-1 text-xs">Visit <a href="/debug" className="underline">/debug</a> to check your configuration.</p>
             </div>
           )}
         </div>
