@@ -1,6 +1,7 @@
 {
-  "name": "next-starter",
-  "version": "0.1.0",
+  "name": "mmxx-nft-dapp",
+  "version": "1.0.0",
+  "description": "A modern Next.js NFT minting DApp with multiple contract support, built with thirdweb v5 and TypeScript",
   "private": true,
   "scripts": {
     "dev": "next dev",
