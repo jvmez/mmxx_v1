@@ -95,18 +95,64 @@ export default function NFTMintSection() {
       setMintStatus("No contract configured. Please set NEXT_PUBLIC_CONTRACT_ADDRESS in your environment variables.");
       return;
     }
+    
     try {
-      setMintStatus("Minting...");
-      const tx = prepareContractCall({
-        contract,
-        method: "function mint()",
-        params: [],
+      setMintStatus("Preparing mint transaction...");
+      
+      // Try different mint function signatures
+      let tx;
+      try {
+        // Try mint() with no parameters
+        tx = prepareContractCall({
+          contract,
+          method: "function mint()",
+          params: [],
+        });
+      } catch (error) {
+        console.log("mint() failed, trying mint(address)");
+        try {
+          // Try mint(address) with user's address
+          tx = prepareContractCall({
+            contract,
+            method: "function mint(address)",
+            params: [account.address],
+          });
+        } catch (error2) {
+          console.log("mint(address) failed, trying safeMint(address)");
+          // Try safeMint(address) with user's address
+          tx = prepareContractCall({
+            contract,
+            method: "function safeMint(address)",
+            params: [account.address],
+          });
+        }
+      }
+      
+      setMintStatus("Minting... Please confirm the transaction in your wallet.");
+      
+      const result = await sendTransaction({ 
+        transaction: tx, 
+        account
       });
-      await sendTransaction({ transaction: tx, account });
-      setMintStatus("Mint successful");
-    } catch (err) {
-      setMintStatus("Mint failed");
+      
+      setMintStatus(`Transaction sent: ${result.transactionHash}`);
+      
+      setMintStatus("Mint successful! Check your wallet for the new NFT.");
+      console.log("Mint transaction result:", result);
+      
+    } catch (err: any) {
       console.error("Mint error:", err);
+      
+      // Provide more specific error messages
+      if (err.message?.includes("user rejected")) {
+        setMintStatus("Transaction cancelled by user");
+      } else if (err.message?.includes("insufficient funds")) {
+        setMintStatus("Insufficient funds for gas fees");
+      } else if (err.message?.includes("execution reverted")) {
+        setMintStatus("Transaction failed: Contract execution reverted. Check if minting is enabled.");
+      } else {
+        setMintStatus(`Mint failed: ${err.message || "Unknown error"}`);
+      }
     }
   };
 
@@ -195,6 +241,17 @@ export default function NFTMintSection() {
           </button>
           {mintStatus && (
             <div className="mt-4 text-center text-sm text-zinc-700">{mintStatus}</div>
+          )}
+          
+          {/* Debug Information */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="mt-4 p-3 bg-gray-100 rounded text-xs">
+              <div><strong>Debug Info:</strong></div>
+              <div>Selected Contract: {effectiveAddress || 'None'}</div>
+              <div>Account: {account ? `${account.address.slice(0, 6)}...${account.address.slice(-4)}` : 'Not connected'}</div>
+              <div>Chain: {chain.name} (ID: {chain.id})</div>
+              <div>Contract Valid: {contract ? 'Yes' : 'No'}</div>
+            </div>
           )}
           {contractAddresses.length === 0 && (
             <div className="mt-3 text-center text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-3">
