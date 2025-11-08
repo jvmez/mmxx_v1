@@ -51,9 +51,34 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                 The application encountered an error. This is usually caused by missing environment variables.
               </p>
               <div className="bg-gray-100 rounded-md p-3 mb-4">
-                <p className="text-xs text-gray-600 font-mono">
+                <p className="text-xs text-gray-600 font-mono break-words">
                   {this.state.error?.message || "Unknown error"}
                 </p>
+              </div>
+              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 mb-4">
+                <p className="text-xs font-semibold text-yellow-800 mb-2">Quick Fix:</p>
+                <ol className="text-xs text-yellow-700 space-y-1 list-decimal list-inside text-left">
+                  <li>Check your <code className="bg-yellow-100 px-1 rounded">.env.local</code> file</li>
+                  <li>Ensure <code className="bg-yellow-100 px-1 rounded">NEXT_PUBLIC_THIRDWEB_CLIENT_ID</code> is set with a valid client ID</li>
+                  <li>Get your client ID from <a href="https://portal.thirdweb.com/typescript/v5/client" target="_blank" rel="noopener noreferrer" className="underline">thirdweb Portal</a></li>
+                  <li>Restart your dev server after updating environment variables</li>
+                </ol>
+                {this.state.error?.message?.includes("ORIGIN_UNAUTHORIZED") || this.state.error?.message?.includes("Unauthorized domain") ? (
+                  <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded">
+                    <p className="text-xs font-semibold text-red-800 mb-1">⚠️ Domain Authorization Error:</p>
+                    <p className="text-xs text-red-700 mb-2">
+                      Your localhost domain is not authorized. Add it to your thirdweb API key settings.
+                    </p>
+                    <a 
+                      href="https://thirdweb.com/create-api-key" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-xs text-blue-600 underline"
+                    >
+                      Fix in Thirdweb Dashboard →
+                    </a>
+                  </div>
+                ) : null}
               </div>
               <div className="space-y-2">
                 <button
@@ -63,7 +88,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                   Try Again
                 </button>
                 <p className="text-xs text-gray-500">
-                  If the error persists, check your environment variables in Netlify.
+                  If the error persists, check your environment variables in your deployment platform.
                 </p>
               </div>
             </div>

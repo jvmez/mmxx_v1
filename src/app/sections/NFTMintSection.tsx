@@ -101,31 +101,48 @@ export default function NFTMintSection() {
       
       // Try different mint function signatures
       let tx;
+      let txError: Error | null = null;
+      
+      // Try mint() with no parameters
       try {
-        // Try mint() with no parameters
         tx = prepareContractCall({
           contract,
           method: "function mint()",
           params: [],
         });
-      } catch (error) {
-        console.log("mint() failed, trying mint(address)");
+      } catch (error: any) {
+        console.log("mint() failed, trying mint(address)", error?.message);
+        txError = error;
+        
+        // Try mint(address) with user's address
         try {
-          // Try mint(address) with user's address
           tx = prepareContractCall({
             contract,
             method: "function mint(address)",
             params: [account.address],
           });
-        } catch (error2) {
-          console.log("mint(address) failed, trying safeMint(address)");
+          txError = null;
+        } catch (error2: any) {
+          console.log("mint(address) failed, trying safeMint(address)", error2?.message);
+          txError = error2;
+          
           // Try safeMint(address) with user's address
-          tx = prepareContractCall({
-            contract,
-            method: "function safeMint(address)",
-            params: [account.address],
-          });
+          try {
+            tx = prepareContractCall({
+              contract,
+              method: "function safeMint(address)",
+              params: [account.address],
+            });
+            txError = null;
+          } catch (error3: any) {
+            console.error("All mint function attempts failed:", error3);
+            throw new Error(`Contract does not support mint(), mint(address), or safeMint(address). Error: ${error3?.message || "Unknown error"}`);
+          }
         }
+      }
+      
+      if (!tx) {
+        throw new Error("Failed to prepare transaction. Please check the contract ABI.");
       }
       
       setMintStatus("Minting... Please confirm the transaction in your wallet.");
@@ -137,21 +154,29 @@ export default function NFTMintSection() {
       
       setMintStatus(`Transaction sent: ${result.transactionHash}`);
       
-      setMintStatus("Mint successful! Check your wallet for the new NFT.");
+      // Wait a moment before showing success message
+      setTimeout(() => {
+        setMintStatus("Mint successful! Check your wallet for the new NFT.");
+      }, 2000);
+      
       console.log("Mint transaction result:", result);
       
     } catch (err: any) {
       console.error("Mint error:", err);
       
       // Provide more specific error messages
-      if (err.message?.includes("user rejected")) {
+      const errorMessage = err?.message || err?.toString() || "Unknown error";
+      
+      if (errorMessage.includes("user rejected") || errorMessage.includes("User rejected")) {
         setMintStatus("Transaction cancelled by user");
-      } else if (err.message?.includes("insufficient funds")) {
+      } else if (errorMessage.includes("insufficient funds") || errorMessage.includes("insufficient balance")) {
         setMintStatus("Insufficient funds for gas fees");
-      } else if (err.message?.includes("execution reverted")) {
-        setMintStatus("Transaction failed: Contract execution reverted. Check if minting is enabled.");
+      } else if (errorMessage.includes("execution reverted") || errorMessage.includes("revert")) {
+        setMintStatus("Transaction failed: Contract execution reverted. Check if minting is enabled or if you've already minted.");
+      } else if (errorMessage.includes("does not support")) {
+        setMintStatus(`Contract error: ${errorMessage}`);
       } else {
-        setMintStatus(`Mint failed: ${err.message || "Unknown error"}`);
+        setMintStatus(`Mint failed: ${errorMessage}`);
       }
     }
   };

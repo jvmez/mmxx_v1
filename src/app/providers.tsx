@@ -57,5 +57,3 @@ export function Providers({ children }: PropsWithChildren) {
     </ErrorBoundary>
   );
 }
-
-
